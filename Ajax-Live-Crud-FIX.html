@@ -1,0 +1,114 @@
+<script>
+    $(document).ready(function(){
+
+        //Search
+        $("#myInput").on("keyup", function() {
+            var value = $(this).val().toLowerCase();
+            $("#productTable tr").filter(function() {
+            $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1)
+            });
+        });
+
+        //Modal Update
+        $(document).on('click', '#openUpdate', function () {
+            let slug = $(this).val();
+            $.get(api + 'product/' + slug, function (value) {
+                const product = value.data;
+                $('#nameUpdate').val(product.name);
+                $('#productUpdate').modal('show');
+            })
+        });
+
+        //Button Update Data
+        $(document).on('click', '.updateButton', function () {
+            let slug = $(this).val();
+            Update(slug);
+        });
+
+        // Delete Data
+        $(document).on('click', '#delete', function () {
+            let slug = $(this).val();
+            $.ajax({
+                url: api + "product/" + slug,
+                type: "DELETE",
+                contentType: "application/json",
+                success: function() {
+                    productList();
+                    toastr.info('Delete product Success!', '', {timeOut: 2000})
+                }
+            });
+        });
+
+        //Create Data
+        $('#create').on('submit', function(event){
+            event.preventDefault();
+            // let formData = new FormData($('#create')[0]);
+            $.ajax({
+                url: api + "product",
+                method:"POST",
+                data: new FormData(this),
+                dataType:'JSON',
+                contentType: false,
+                cache: false,
+                processData: false,
+                success:function(data) {
+                    $('#addProduct').modal('hide');
+                    document.getElementById("create").reset();
+                    productList();
+                    toastr.success('Create Product Success!', '', {timeOut: 2000})
+                }
+            })
+        });
+    });
+
+    //Update Data
+    function Update(slug) {
+        var product = new Object();
+        product.name = $('#nameUpdate').val();
+
+        $.ajax({
+            url: api + 'product/' + slug,
+            type: 'PUT',
+            dataType: 'json',
+            data: product,
+            success: function (data, textStatus, xhr) {
+                productList();
+                $('#productUpdate').modal('hide');
+                document.getElementById("update").reset();
+                toastr.success('Update Product Success!', '', {timeOut: 2000})
+            },
+            error: function (xhr, textStatus, errorThrown) {
+                console.log('Error in Operation');
+            }
+        });
+    }
+
+    //Show Data
+    function productList() {
+        $.ajax({
+            url: api + 'product',
+            type: 'GET',
+            dataType: 'json',
+            success: function (product) {
+                let products = product.data;
+                $('#productTable').empty();
+
+                $.each(products, function (index, product) {
+                    $("#productTable").append(productTable(product, index));
+                });
+            },
+            error: function (request, message, error) {
+                handleException(request, message, error);
+            }
+        });
+    }
+
+    //Table
+    function productTable(product, index) {
+        var ret =
+        '<tr><td>' + number + '</td></tr>';
+        return ret;
+    }
+    
+    productList();
+</script>
