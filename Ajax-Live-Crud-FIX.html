@@ -9,32 +9,25 @@
             });
         });
 
-        //Modal Update
+        //On Click By ID
         $(document).on('click', '#openUpdate', function () {
-            let slug = $(this).val();
-            $.get(api + 'product/' + slug, function (value) {
-                const product = value.data;
-                $('#nameUpdate').val(product.name);
-                $('#productUpdate').modal('show');
+            let slug = $(this).val(); //get value button
+            $.get(url, function (value) { //get data
+                $('#nameUpdate').val(product.name); //send data by id
+                $('#productUpdate').modal('show'); //open modal
             })
         });
 
-        //Button Update Data
-        $(document).on('click', '.updateButton', function () {
-            let slug = $(this).val();
-            Update(slug);
-        });
 
         // Delete Data
         $(document).on('click', '#delete', function () {
             let slug = $(this).val();
             $.ajax({
-                url: api + "product/" + slug,
+                url: url + slug,
                 type: "DELETE",
                 contentType: "application/json",
                 success: function() {
-                    productList();
-                    toastr.info('Delete product Success!', '', {timeOut: 2000})
+                    productList(); //Update product list
                 }
             });
         });
@@ -44,7 +37,7 @@
             event.preventDefault();
             // let formData = new FormData($('#create')[0]);
             $.ajax({
-                url: api + "product",
+                url: url,
                 method:"POST",
                 data: new FormData(this),
                 dataType:'JSON',
@@ -52,10 +45,9 @@
                 cache: false,
                 processData: false,
                 success:function(data) {
-                    $('#addProduct').modal('hide');
-                    document.getElementById("create").reset();
-                    productList();
-                    toastr.success('Create Product Success!', '', {timeOut: 2000})
+                    $('#addProduct').modal('hide'); //hide modal
+                    document.getElementById("create").reset(); //reset form by id
+                    productList(); //
                 }
             })
         });
@@ -64,18 +56,15 @@
     //Update Data
     function Update(slug) {
         var product = new Object();
-        product.name = $('#nameUpdate').val();
+        product.name = $('#nameUpdate').val(); //get value by id
 
         $.ajax({
-            url: api + 'product/' + slug,
+            url: url + slug,
             type: 'PUT',
             dataType: 'json',
             data: product,
             success: function (data, textStatus, xhr) {
                 productList();
-                $('#productUpdate').modal('hide');
-                document.getElementById("update").reset();
-                toastr.success('Update Product Success!', '', {timeOut: 2000})
             },
             error: function (xhr, textStatus, errorThrown) {
                 console.log('Error in Operation');
@@ -86,12 +75,11 @@
     //Show Data
     function productList() {
         $.ajax({
-            url: api + 'product',
+            url: url,
             type: 'GET',
             dataType: 'json',
             success: function (product) {
-                let products = product.data;
-                $('#productTable').empty();
+                $('#productTable').empty(); //reset table
 
                 $.each(products, function (index, product) {
                     $("#productTable").append(productTable(product, index));
@@ -106,9 +94,9 @@
     //Table
     function productTable(product, index) {
         var ret =
-        '<tr><td>' + number + '</td></tr>';
+        '<tr><td>' + product + '</td></tr>';
         return ret;
     }
     
-    productList();
+    productList(); //call function
 </script>
